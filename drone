@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AgroGuard AI — Мониторинг КРС</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6f4;
+            color: #1f2937;
+        }
+
+        /* HEADER */
+
+        header {
+            background: #14532d;
+            color: white;
+            padding: 20px;
+        }
+
+        .header-content {
+            max-width: 1100px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .status {
+            background: #22c55e;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* MAIN */
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #6b7280;
+        }
+
+        /* STATISTICS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        }
+
+        .stat-icon {
+            font-size: 30px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .stat-name {
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        /* GRID */
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        /* MAP */
+
+        .map {
+            height: 330px;
+            border-radius: 12px;
+            background:
+                linear-gradient(45deg, #dcfce7 25%, transparent 25%),
+                linear-gradient(-45deg, #dcfce7 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #dcfce7 75%),
+                linear-gradient(-45deg, transparent 75%, #dcfce7 75%);
+            background-size: 50px 50px;
+            background-position: 0 0, 0 25px, 25px -25px, -25px 0px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .farm-zone {
+            position: absolute;
+            width: 70%;
+            height: 65%;
+            left: 15%;
+            top: 18%;
+            border: 3px dashed #16a34a;
+            border-radius: 20px;
+            background: rgba(134, 239, 172, 0.25);
+        }
+
+        .drone {
+            position: absolute;
+            top: 30px;
+            right: 80px;
+            font-size: 35px;
+        }
+
+        .cow {
+            position: absolute;
+            font-size: 25px;
+        }
+
+        .cow1 {
+            left: 35%;
+            top: 40%;
+        }
+
+        .cow2 {
+            left: 45%;
+            top: 55%;
+        }
+
+        .cow3 {
+            left: 55%;
+            top: 45%;
+        }
+
+        .cow4 {
+            left: 65%;
+            top: 58%;
+        }
+
+        .alert-point {
+            position: absolute;
+            right: 8%;
+            bottom: 20%;
+            font-size: 35px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* ALERT */
+
+        .alert {
+            background: #fff7ed;
+            border: 1px solid #fb923c;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            color: #c2410c;
+        }
+
+        .alert-text {
+            font-size: 14px;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        /* BUTTON */
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 9px;
+            background: #16a34a;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #15803d;
+        }
+
+        /* AI */
+
+        .ai-box {
+            margin-top: 20px;
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            padding: 18px;
+            border-radius: 12px;
+        }
+
+        .ai-title {
+            font-weight: bold;
+            color: #1d4ed8;
+            margin-bottom: 8px;
+        }
+
+        /* ANIMAL TABLE */
+
+        .animals {
+            margin-top: 20px;
+        }
+
+        .animal {
+            display: flex;
+            justify-content: space-between;
+            padding: 13px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .animal:last-child {
+            border-bottom: none;
+        }
+
+        .safe {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 800px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 12px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="header-content">
+
+        <div class="logo">
+            🚁 AgroGuard AI
+        </div>
+
+        <div class="status">
+            ● Дрон онлайн
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+    <div class="welcome">
+
+        <h1>Панель мониторинга фермы</h1>
+
+        <p>
+            Система наблюдения за КРС с использованием БПЛА и искусственного интеллекта.
+        </p>
+
+    </div>
+
+
+    <!-- STATISTICS -->
+
+    <section class="stats">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">🐄</div>
+
+            <div class="stat-number">
+                120
+            </div>
+
+            <div class="stat-name">
+                КРС под наблюдением
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">📡</div>
+
+            <div class="stat-number">
+                118
+            </div>
+
+            <div class="stat-name">
+                Активных чипов
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">🚁</div>
+
+            <div class="stat-number">
+                6
+            </div>
+
+            <div class="stat-name">
+                Полётов сегодня
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">🚨</div>
+
+            <div class="stat-number">
+                2
+            </div>
+
+            <div class="stat-name">
+                Предупреждения
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="dashboard">
+
+
+        <!-- MAP -->
+
+        <div class="card">
+
+            <h2>🗺️ Карта территории</h2>
+
+            <div class="map">
+
+                <div class="farm-zone"></div>
+
+                <div class="drone">
+                    🚁
+                </div>
+
+                <div class="cow cow1">
+                    🐄
+                </div>
+
+                <div class="cow cow2">
+                    🐄
+                </div>
+
+                <div class="cow cow3">
+                    🐄
+                </div>
+
+                <div class="cow cow4">
+                    🐄
+                </div>
+
+                <div class="alert-point">
+                    🚨
+                </div>
+
+            </div>
+
+            <button onclick="startDrone()">
+                🚁 Запустить проверку территории
+            </button>
+
+        </div>
+
+
+        <!-- ALERTS -->
+
+        <div class="card">
+
+            <h2>🚨 События</h2>
+
+            <div class="alert">
+
+                <div class="alert-title">
+                    Подозрительное перемещение
+                </div>
+
+                <div class="alert-text">
+                    Обнаружено перемещение 5 голов КРС
+                    за пределы разрешённой зоны.
+                </div>
+
+            </div>
+
+
+            <div class="alert">
+
+                <div class="alert-title">
+                    Потеря сигнала
+                </div>
+
+                <div class="alert-text">
+                    Чип животного #A-104
+                    временно недоступен.
+                </div>
+
+            </div>
+
+
+            <button onclick="showAlert()">
+                Проверить ситуацию
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- AI -->
+
+    <section class="card ai-box">
+
+        <div class="ai-title">
+            🤖 AI-анализ ситуации
+        </div>
+
+        <div id="aiText">
+
+            AI обнаружил отклонение части стада
+            от установленной зоны. Рекомендуется
+            проверить участок №3.
+
+        </div>
+
+    </section>
+
+
+    <!-- ANIMALS -->
+
+    <section class="card animals">
+
+        <h2>🐄 Мониторинг животных</h2>
+
+
+        <div class="animal">
+
+            <span>
+                🐄 КРС #A-101
+            </span>
+
+            <span class="safe">
+                ● В стаде
+            </span>
+
+        </div>
+
+
+        <div class="animal">
+
+            <span>
+                🐄 КРС #A-102
+            </span>
+
+            <span class="safe">
+                ● В стаде
+            </span>
+
+        </div>
+
+
+        <div class="animal">
+
+            <span>
+                🐄 КРС #A-103
+            </span>
+
+            <span class="safe">
+                ● В стаде
+            </span>
+
+        </div>
+
+
+        <div class="animal">
+
+            <span>
+                🐄 КРС #A-104
+            </span>
+
+            <span class="warning">
+                ● Потеря сигнала
+            </span>
+
+        </div>
+
+
+        <div class="animal">
+
+            <span>
+                🐄 КРС #A-105
+            </span>
+
+            <span class="warning">
+                ● За пределами зоны
+            </span>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<script>
+
+function startDrone() {
+
+    const button = document.querySelector("button");
+
+    button.innerText = "🔄 Дрон выполняет облёт...";
+
+    setTimeout(function() {
+
+        button.innerText = "✅ Проверка завершена";
+
+        document.getElementById("aiText").innerHTML =
+            "AI завершил анализ территории. " +
+            "Обнаружено 120 голов КРС. " +
+            "<b>5 животных требуют дополнительной проверки.</b>";
+
+    }, 2500);
+
+}
+
+
+function showAlert() {
+
+    alert(
+        "🚨 ПРЕДУПРЕЖДЕНИЕ\n\n" +
+        "Обнаружено подозрительное перемещение КРС.\n\n" +
+        "Участок: №3\n" +
+        "Количество животных: 5\n" +
+        "Рекомендуется проверить территорию."
+    );
+
+}
+
+</script>
+
+</body>
+</html>
